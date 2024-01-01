@@ -12,6 +12,11 @@ export class Change {
 	}
 	
 	public commit(): void {}
+	
+	public toBeam(): any {
+		console.trace("Beambox: A change of type \"" + this.constructor.name + "\" does not define \"toBeam\"");
+		return ["unrecognized"];
+	}
 }
 
 export class UndoableChange extends Change {
@@ -98,5 +103,15 @@ export class ChangeSequence extends UndoableChange {
 		for (let i: number = this._changes.length-1; i >= 0 ; i--) {
 			this._changes[i].undo();
 		}
+	}
+	
+	public toBeam(): any {
+		let beamSequence: any = [];
+		this._changes.forEach(function(a: any) {
+			beamSequence.push(a.toBeam());
+		});
+		return ["sequence", beamSequence.filter(function(a: any) {
+			return a != null;
+		})];
 	}
 }

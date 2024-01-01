@@ -364,6 +364,7 @@ export class SongDocument {
 				window.requestAnimationFrame(this._updateHistoryState);
 				this._waitingToUpdateState = true;
 			}
+			this.beamSend(change);
 		}
 	}
 	
@@ -450,5 +451,13 @@ export class SongDocument {
 	public getBaseVisibleOctave(channel: number): number {
 		const visibleOctaveCount: number = this.getVisibleOctaveCount();
 		return Math.max(0, Math.min(Config.pitchOctaves - visibleOctaveCount, Math.ceil(this.song.channels[channel].octave - visibleOctaveCount * 0.5)));
+	}
+	
+	public beamSend(data: any) {
+		let beamMessage = data.toBeam();
+		if (beamMessage[0] == "sequence" && beamMessage[1].length == 0) {
+			return; //do nothing
+		}
+		console.trace(JSON.stringify(beamMessage));
 	}
 }

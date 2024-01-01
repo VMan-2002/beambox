@@ -2606,6 +2606,22 @@ export class ChangeNoteAdded extends UndoableChange {
 		this._pattern.notes.splice(this._index, 1);
 		this._doc.notifier.changed();
 	}
+	
+	public toBeam(): any {
+		//let channelNum: number = -1;
+		//let patternNum: number = -1;
+		//BeamBox: pattern finder
+		/*let maxChannel: number = this._doc.song.getChannelCount();
+		for (let i = 0; i < maxChannel; i++) {
+			if (this._doc.song.channels[i].patterns.includes(this._pattern)) {
+				channelNum = i;
+				patternNum = this._doc.song.channels[i].patterns.indexOf(this._pattern);
+				break;
+			}
+		}*/
+		let a = findChannelForPattern(this._pattern, this._doc.song);
+		return ["noteAdded", a[0], a[1], this._note.start, this._note.end, this._note.pitches[0]];
+	}
 }
 
 export class ChangeNoteLength extends ChangePins {
@@ -2906,6 +2922,10 @@ export class ChangePatternSelection extends UndoableChange {
 		this._doc.selection.patternSelectionActive = this._oldActive;
 		this._doc.notifier.changed();
 	}
+	
+	public toBeam(): any {
+		return null;
+	}
 }
 
 export class ChangeDragSelectedNotes extends ChangeSequence {
@@ -2961,6 +2981,10 @@ export class ChangeDragSelectedNotes extends ChangeSequence {
 				this.append(new ChangeTransposeNote(doc, channelIndex, note, transpose > 0, doc.prefs.notesOutsideScale));
 			}
 		}
+	}
+	
+	public toBeam(): any {
+		
 	}
 }
 
@@ -3224,4 +3248,18 @@ export class ChangeSetEnvelopeType extends Change {
 			this._didSomething();
 		}
 	}
+}
+
+/**
+	BeamBox: Find channel number from the pattern specified
+**/
+function findChannelForPattern(pat: Pattern, song: Song): number[] {
+	let maxChannel: number = song.getChannelCount();
+	for (let i = 0; i < maxChannel; i++) {
+		if (song.channels[i].patterns.includes(pat)) {
+			return [i, song.channels[i].patterns.indexOf(pat)];
+		}
+	}
+	console.trace("BeamBox: Couldn't find a channel for this pattern");
+	return [0, 0];
 }
